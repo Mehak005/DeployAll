@@ -1,0 +1,105 @@
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+const app = express();
+
+app.use(express.json());
+
+// ✅ /ping route for testing
+app.get('/ping', (req, res) => {
+  res.status(200).json({ message: 'pong' });
+});
+
+// ✅ Connect to SQLite DB
+const db = new sqlite3.Database('./students.db', (err) => {
+  if (err) return console.error(err.message);
+  console.log('Connected to SQLite DB');
+});
+
+// ✅ Create students table (British spelling fields)
+db.run(`CREATE TABLE IF NOT EXISTS students (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  favouriteColor TEXT NOT NULL,
+  favouriteFood TEXT NOT NULL,
+  likes INTEGER NOT NULL DEFAULT 0
+)`);
+
+// ✅ GET all students
+app.get('/api/students', (req, res) => {
+  db.all("SELECT * FROM students", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.status(200).json(rows);
+  });
+});
+
+// ✅ GET one student
+app.get('/api/students/:id', (req, res) => {
+  db.get("SELECT * FROM students WHERE id = ?", [req.params.id], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!row) return res.status(404).json({ error: "Student not found" });
+    res.status(200).json(row);
+  });
+});
+
+// ✅ POST create a student
+app.post('/api/students', (req, res) => {
+  console.log("Request body:", req.body);
+
+  const { name, favouriteColor, favouriteFood } = req.body;
+
+  if (!name || !favouriteColor || !favouriteFood) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
+
+  db.run(
+    "INSERT INTO students (name, favouriteColor, favouriteFood, likes) VALUES (?, ?, ?, ?)",
+    [name, favouriteColor, favouriteFood, 0],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(201).json({
+        id: this.lastID,
+        name,
+        favouriteColor,
+        favouriteFood,
+        likes: 0
+      });
+    }
+  );
+});
+
+// ✅ PUT update a student
+app.put('/api/students/:id', (req, res) => {
+  const { name, favouriteColor, favouriteFood, likes } = req.body;
+
+  if (!name || !favouriteColor || !favouriteFood) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
+
+  db.run("UPDATE students SET name = ?, favouriteColor = ?, favouriteFood = ?, likes = ? WHERE id = ?",
+    [name, favouriteColor, favouriteFood, likes || 0, req.params.id],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      if (this.changes === 0) return res.status(404).json({ error: "Student not found" });
+
+      res.status(200).json({
+        id: req.params.id,
+        name,
+        favouriteColor,
+        favouriteFood,
+        likes
+      });
+    });
+});
+
+// ✅ DELETE a student
+app.delete('/api/students/:id', (req, res) => {
+  db.run("DELETE FROM students WHERE id = ?", [req.params.id], function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).json({ error: "Student not found" });
+    res.status(200).json({ message: "Student deleted successfully" });
+  });
+});
+
+module.exports = app;
+
+
