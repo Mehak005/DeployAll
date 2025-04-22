@@ -1,0 +1,16 @@
+services:
+  backend:
+    build:
+      context: ./expressjs-and-rest-Mehak005
+    ports:
+      - "3000:3000"
+    restart: on-failure
+
+  frontend:
+    build:
+      context: ./React.app
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: on-failure
