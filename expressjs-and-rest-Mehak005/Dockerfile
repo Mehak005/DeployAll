@@ -1,12 +1,17 @@
+# Use Debian‑slim so native modules load correctly
 FROM node:18-slim
+
 WORKDIR /app
 
-# Install dependencies
+# Copy package definitions & install cleanly
 COPY package*.json ./
 RUN npm ci
 
-# Copy app source\ COPY . .
+# Copy app sources
+COPY . .
 
-# Expose API port
+# Expose your API port
 EXPOSE 3000
+
+# Start your server
 CMD ["node", "index.js"]
