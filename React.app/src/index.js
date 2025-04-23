@@ -1,4 +1,11 @@
-// 1) Bootstrap _first_ so its resets and utility classes load before anything else
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs =>
+    regs.forEach(r => r.unregister())
+  );
+}
+
+
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 
