@@ -1,7 +1,7 @@
-// React.app/src/index.js
-
-
+// 1) Bootstrap **first**
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+// 2) Then your custom overrides
 import './index.css';
 
 import React from 'react';

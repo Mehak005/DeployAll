@@ -15,7 +15,7 @@ import Navbar from "./Navbar";
 import Card from "./Card";
 import TableView from "./TableView";
 import ProfileForm from "./ProfileForm";
-import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 function App() {
   const [profiles, setProfiles] = useState([]);
