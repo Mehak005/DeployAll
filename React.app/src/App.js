@@ -15,7 +15,7 @@ import Navbar from "./Navbar";
 import Card from "./Card";
 import TableView from "./TableView";
 import ProfileForm from "./ProfileForm";
-
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const [profiles, setProfiles] = useState([]);
@@ -26,7 +26,7 @@ function App() {
     JSON.parse(localStorage.getItem("darkMode")) || false
   );
 
-  // 🔑 Use **relative** API path so it works from any host
+  // Use a relative path for the API endpoint
   const API_URL = '/api/students';
 
   // Fetch all profiles
@@ -43,9 +43,7 @@ function App() {
 
   useEffect(() => {
     localStorage.setItem("darkMode", JSON.stringify(darkMode));
-    document.body.className = darkMode
-      ? "bg-dark text-light"
-      : "bg-light text-dark";
+    document.body.className = darkMode ? "bg-dark text-light" : "bg-light text-dark";
   }, [darkMode]);
 
   const toggleDarkMode = () => {
@@ -92,7 +90,9 @@ function App() {
   const handleLike = async (id) => {
     const profile = profiles.find((p) => p.id === id);
     if (!profile) return;
+
     const updated = { ...profile, likes: profile.likes + 1 };
+
     try {
       const res = await fetch(`${API_URL}/${id}`, {
         method: 'PUT',
@@ -107,17 +107,8 @@ function App() {
   };
 
   return (
-    <div
-      className={`container-fluid ${
-        darkMode ? "bg-dark text-light" : "bg-light text-dark"
-      }`}
-    >
-      <Navbar
-        view={view}
-        setView={setView}
-        darkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
-      />
+    <div className={`container-fluid ${darkMode ? "bg-dark text-light" : "bg-light text-dark"}`}>
+      <Navbar view={view} setView={setView} darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
 
       <div className="container">
         <h2 className="text-center mt-4 mb-4">My Classmates</h2>
